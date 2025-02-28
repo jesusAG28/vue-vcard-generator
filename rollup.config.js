@@ -30,9 +30,7 @@ export default {
     commonjs(),
     vue({
       css: true,
-      template: {
-        isProduction: true,
-      },
+      preprocessStyles: true,
     }),
     babel({
       babelHelpers: "bundled",
