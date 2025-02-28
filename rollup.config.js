@@ -3,6 +3,7 @@ import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import { terser } from "rollup-plugin-terser";
+import postcss from "rollup-plugin-postcss";
 // Para Vue 3
 
 export default {
@@ -29,18 +30,14 @@ export default {
       browser: true,
     }),
     commonjs(),
+    postcss({
+      extensions: [".css"],
+      minimize: true,
+      inject: false,
+      extract: false,
+    }),
     vue({
-      css: true,
-      template: {
-        isProduction: true,
-      },
-      style: {
-        preprocessOptions: {
-          scss: {
-            includePaths: ["node_modules"],
-          },
-        },
-      },
+      css: false, // Dejamos que postcss maneje el CSS
     }),
     babel({
       babelHelpers: "bundled",
