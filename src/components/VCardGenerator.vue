@@ -13,7 +13,6 @@
 </template>
 
 <script>
-import { ref, watch, onMounted } from "vue";
 import QRCode from "qrcode";
 
 export default {
@@ -39,112 +38,127 @@ export default {
     "nfc-error",
     "qr-error",
   ],
-  setup(props, { emit }) {
-    const vcardData = ref("");
-    const qrCode = ref(null);
-    const nfcSupported = ref(false);
-
+  data() {
+    return {
+      vcardData: "",
+      qrCode: null,
+      nfcSupported: false,
+    };
+  },
+  mounted() {
+    this.generateVCard();
+    this.checkNFCSupport();
+  },
+  watch: {
+    contact: {
+      handler() {
+        this.generateVCard();
+      },
+      deep: true,
+    },
+  },
+  methods: {
     // Generar vCard
-    const generateVCard = () => {
+    generateVCard() {
       // Formato estándar vCard
       let vcard = "BEGIN:VCARD\nVERSION:3.0\n";
 
       // Datos obligatorios
-      vcard += `FN:${props.contact.name}\n`;
+      vcard += `FN:${this.contact.name}\n`;
 
       // Datos opcionales con comprobación
-      if (props.contact.firstName && props.contact.lastName) {
-        vcard += `N:${props.contact.lastName};${props.contact.firstName};;;\n`;
+      if (this.contact.firstName && this.contact.lastName) {
+        vcard += `N:${this.contact.lastName};${this.contact.firstName};;;\n`;
       }
 
-      if (props.contact.organization) {
-        vcard += `ORG:${props.contact.organization}\n`;
+      if (this.contact.organization) {
+        vcard += `ORG:${this.contact.organization}\n`;
       }
 
-      if (props.contact.title) {
-        vcard += `TITLE:${props.contact.title}\n`;
+      if (this.contact.title) {
+        vcard += `TITLE:${this.contact.title}\n`;
       }
 
-      if (props.contact.phone) {
-        vcard += `TEL;TYPE=CELL:${props.contact.phone}\n`;
+      if (this.contact.phone) {
+        vcard += `TEL;TYPE=CELL:${this.contact.phone}\n`;
       }
 
-      if (props.contact.email) {
-        vcard += `EMAIL:${props.contact.email}\n`;
+      if (this.contact.email) {
+        vcard += `EMAIL:${this.contact.email}\n`;
       }
 
-      if (props.contact.website) {
-        vcard += `URL:${props.contact.website}\n`;
+      if (this.contact.website) {
+        vcard += `URL:${this.contact.website}\n`;
       }
 
-      if (props.contact.address) {
-        vcard += `ADR:;;${props.contact.address};;;;\n`;
+      if (this.contact.address) {
+        vcard += `ADR:;;${this.contact.address};;;;\n`;
       }
 
       // Redes sociales
-      if (props.contact.linkedin) {
-        vcard += `URL;TYPE=LINKEDIN:${props.contact.linkedin}\n`;
+      if (this.contact.linkedin) {
+        vcard += `URL;TYPE=LINKEDIN:${this.contact.linkedin}\n`;
       }
 
-      if (props.contact.twitter) {
-        vcard += `URL;TYPE=TWITTER:${props.contact.twitter}\n`;
+      if (this.contact.twitter) {
+        vcard += `URL;TYPE=TWITTER:${this.contact.twitter}\n`;
       }
 
       vcard += "END:VCARD";
 
-      vcardData.value = vcard;
+      this.vcardData = vcard;
 
       // Generar QR si está habilitado
-      if (props.showQR) {
-        generateQRCode();
+      if (this.showQR) {
+        this.generateQRCode();
       }
 
       // Emitir evento con los datos generados
-      emit("vcard-generated", {
+      this.$emit("vcard-generated", {
         vcardString: vcard,
         dataUrl: `data:text/vcard;charset=utf-8,${encodeURIComponent(vcard)}`,
       });
-    };
+    },
 
     // Generar código QR
-    const generateQRCode = async () => {
+    async generateQRCode() {
       try {
-        qrCode.value = await QRCode.toDataURL(vcardData.value, {
+        this.qrCode = await QRCode.toDataURL(this.vcardData, {
           errorCorrectionLevel: "H",
           margin: 1,
           width: 200,
         });
       } catch (error) {
         console.error("Error al generar QR:", error);
-        emit("qr-error", error.message);
+        this.$emit("qr-error", error.message);
       }
-    };
+    },
 
     // Descargar vCard
-    const downloadVCard = () => {
+    downloadVCard() {
       const dataUrl = `data:text/vcard;charset=utf-8,${encodeURIComponent(
-        vcardData.value
+        this.vcardData
       )}`;
       const link = document.createElement("a");
       link.href = dataUrl;
-      link.download = `${props.contact.name.replace(/\s+/g, "_")}.vcf`;
+      link.download = `${this.contact.name.replace(/\s+/g, "_")}.vcf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
-      emit("vcard-downloaded");
-    };
+      this.$emit("vcard-downloaded");
+    },
 
     // Comprobar soporte NFC
-    const checkNFCSupport = () => {
-      nfcSupported.value =
+    checkNFCSupport() {
+      this.nfcSupported =
         typeof window !== "undefined" && "NDEFReader" in window;
-    };
+    },
 
     // Escribir en NFC
-    const writeToNFC = async () => {
-      if (!nfcSupported.value) {
-        emit("nfc-error", "NFC no es compatible con este dispositivo");
+    async writeToNFC() {
+      if (!this.nfcSupported) {
+        this.$emit("nfc-error", "NFC no es compatible con este dispositivo");
         return;
       }
 
@@ -152,7 +166,7 @@ export default {
         const ndef = new window.NDEFReader();
         await ndef.scan();
 
-        emit("nfc-scanning");
+        this.$emit("nfc-scanning");
 
         ndef.onreading = async () => {
           try {
@@ -160,45 +174,23 @@ export default {
               records: [
                 {
                   recordType: "text",
-                  data: vcardData.value,
+                  data: this.vcardData,
                 },
               ],
             });
 
-            emit(
+            this.$emit(
               "nfc-success",
               "vCard escrita correctamente a la etiqueta NFC"
             );
           } catch (error) {
-            emit("nfc-error", error.message);
+            this.$emit("nfc-error", error.message);
           }
         };
       } catch (error) {
-        emit("nfc-error", error.message);
+        this.$emit("nfc-error", error.message);
       }
-    };
-
-    // Watch para cambios en contact
-    watch(
-      () => props.contact,
-      () => {
-        generateVCard();
-      },
-      { deep: true }
-    );
-
-    // Inicializar al montar
-    onMounted(() => {
-      generateVCard();
-      checkNFCSupport();
-    });
-
-    return {
-      qrCode,
-      nfcSupported,
-      downloadVCard,
-      writeToNFC,
-    };
+    },
   },
 };
 </script>

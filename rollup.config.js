@@ -4,7 +4,6 @@ import commonjs from "@rollup/plugin-commonjs";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import { terser } from "rollup-plugin-terser";
 import postcss from "rollup-plugin-postcss";
-// Para Vue 3
 
 export default {
   input: "src/index.js",
@@ -26,19 +25,15 @@ export default {
     },
   ],
   plugins: [
-    nodeResolve({
-      browser: true,
-    }),
+    nodeResolve(),
     commonjs(),
-    postcss({
-      extensions: [".css"],
-      minimize: true,
-      inject: false,
-      extract: false,
-    }),
     vue({
-      css: false, // Dejamos que postcss maneje el CSS
+      template: {
+        isProduction: true,
+        compilerOptions: { whitespace: "condense" },
+      },
     }),
+    postcss(),
     babel({
       babelHelpers: "bundled",
       exclude: "node_modules/**",
