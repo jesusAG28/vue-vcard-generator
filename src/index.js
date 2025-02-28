@@ -5,7 +5,7 @@ export { VCardGenerator };
 
 // Exportar para instalación automática de Vue
 export default {
-  install(Vue) {
-    Vue.component("VCardGenerator", VCardGenerator);
+  install(app) {
+    app.component("VCardGenerator", VCardGenerator);
   },
 };
