@@ -3,6 +3,7 @@ import babel from "@rollup/plugin-babel";
 import commonjs from "@rollup/plugin-commonjs";
 import { nodeResolve } from "@rollup/plugin-node-resolve";
 import { terser } from "rollup-plugin-terser";
+// Para Vue 3
 
 export default {
   input: "src/index.js",
@@ -30,7 +31,16 @@ export default {
     commonjs(),
     vue({
       css: true,
-      preprocessStyles: true,
+      template: {
+        isProduction: true,
+      },
+      style: {
+        preprocessOptions: {
+          scss: {
+            includePaths: ["node_modules"],
+          },
+        },
+      },
     }),
     babel({
       babelHelpers: "bundled",
