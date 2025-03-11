@@ -34,7 +34,7 @@ const props = defineProps({
   },
   showNFC: {
     type: Boolean,
-    default: false,
+    default: true,
   },
 });
 
