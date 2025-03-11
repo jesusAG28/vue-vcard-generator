@@ -1,19 +1,23 @@
-import { ref as s, watch as N, onMounted as R, createElementBlock as i, openBlock as l, createCommentVNode as f, createElementVNode as m } from "vue";
+import { ref as s, watch as N, onMounted as R, createElementBlock as i, openBlock as l, createCommentVNode as m, createElementVNode as u } from "vue";
 import g from "qrcode";
-const E = { class: "vcard-generator" }, _ = {
+const E = { class: "vcard-generator" }, y = {
   key: 0,
   class: "vcard-qr"
-}, y = ["src"], $ = { class: "vcard-actions" }, b = {
+}, $ = ["src"], _ = { class: "vcard-actions" }, b = {
   __name: "VCardGenerator",
   props: {
     contact: {
       type: Object,
       required: !0,
-      validator: function(c) {
-        return c.name && (c.email || c.phone);
+      validator: function(a) {
+        return a.name && (a.email || a.phone);
       }
     },
     showQR: {
+      type: Boolean,
+      default: !0
+    },
+    showNFC: {
       type: Boolean,
       default: !0
     }
@@ -26,8 +30,8 @@ const E = { class: "vcard-generator" }, _ = {
     "nfc-error",
     "qr-error"
   ],
-  setup(c, { emit: v }) {
-    const e = c, a = v, r = s(""), o = s(null), d = s(!1), u = () => {
+  setup(a, { emit: v }) {
+    const e = a, n = v, o = s(""), r = s(null), d = s(!1), f = () => {
       let t = `BEGIN:VCARD
 VERSION:3.0
 `;
@@ -41,83 +45,83 @@ VERSION:3.0
 `), e.contact.address && (t += `ADR:;;${e.contact.address};;;;
 `), e.contact.linkedin && (t += `URL;TYPE=LINKEDIN:${e.contact.linkedin}
 `), e.contact.twitter && (t += `URL;TYPE=TWITTER:${e.contact.twitter}
-`), t += "END:VCARD", r.value = t, e.showQR && p(), a("vcard-generated", {
+`), t += "END:VCARD", o.value = t, e.showQR && C(), n("vcard-generated", {
         vcardString: t,
         dataUrl: `data:text/vcard;charset=utf-8,${encodeURIComponent(t)}`
       });
-    }, p = async () => {
+    }, C = async () => {
       try {
-        o.value = await g.toDataURL(r.value, {
+        r.value = await g.toDataURL(o.value, {
           errorCorrectionLevel: "H",
           margin: 1,
           width: 200
         });
       } catch (t) {
-        console.error("Error al generar QR:", t), a("qr-error", t.message);
+        console.error("Error al generar QR:", t), n("qr-error", t.message);
       }
-    }, C = () => {
+    }, p = () => {
       const t = `data:text/vcard;charset=utf-8,${encodeURIComponent(
-        r.value
-      )}`, n = document.createElement("a");
-      n.href = t, n.download = `${e.contact.name.replace(/\s+/g, "_")}.vcf`, document.body.appendChild(n), n.click(), document.body.removeChild(n), a("vcard-downloaded");
+        o.value
+      )}`, c = document.createElement("a");
+      c.href = t, c.download = `${e.contact.name.replace(/\s+/g, "_")}.vcf`, document.body.appendChild(c), c.click(), document.body.removeChild(c), n("vcard-downloaded");
     }, w = () => {
       d.value = typeof window < "u" && "NDEFReader" in window;
     }, h = async () => {
       if (!d.value) {
-        a("nfc-error", "NFC no es compatible con este dispositivo");
+        n("nfc-error", "NFC no es compatible con este dispositivo");
         return;
       }
       try {
         const t = new window.NDEFReader();
-        await t.scan(), a("nfc-scanning"), t.onreading = async () => {
+        await t.scan(), n("nfc-scanning"), t.onreading = async () => {
           try {
             await t.write({
               records: [
                 {
                   recordType: "text",
-                  data: r.value
+                  data: o.value
                 }
               ]
-            }), a("nfc-success", "vCard escrita correctamente a la etiqueta NFC");
-          } catch (n) {
-            a("nfc-error", n.message);
+            }), n("nfc-success", "vCard escrita correctamente a la etiqueta NFC");
+          } catch (c) {
+            n("nfc-error", c.message);
           }
         };
       } catch (t) {
-        a("nfc-error", t.message);
+        n("nfc-error", t.message);
       }
     };
     return N(
       () => e.contact,
       () => {
-        u();
+        f();
       },
       { deep: !0 }
     ), R(() => {
-      u(), w();
-    }), (t, n) => (l(), i("div", E, [
-      o.value ? (l(), i("div", _, [
-        m("img", {
-          src: o.value,
+      f(), w();
+    }), (t, c) => (l(), i("div", E, [
+      r.value ? (l(), i("div", y, [
+        u("img", {
+          src: r.value,
           alt: "QR Code"
-        }, null, 8, y)
-      ])) : f("", !0),
-      m("div", $, [
-        m("button", {
-          onClick: C,
+        }, null, 8, $)
+      ])) : m("", !0),
+      u("div", _, [
+        u("button", {
+          onClick: p,
           class: "vcard-btn"
         }, "Descargar vCard"),
-        d.value ? (l(), i("button", {
+        d.value && a.showNFC ? (l(), i("button", {
           key: 0,
           onClick: h,
           class: "vcard-btn"
-        }, " Escribir a NFC ")) : f("", !0)
+        }, " Escribir a NFC ")) : m("", !0)
       ])
     ]));
   }
 }, T = {
-  install(c) {
-    c.component("VCardGenerator", b);
+  install(a) {
+    a.component("VCardGenerator", b);
   }
 };
 export {
