@@ -115,6 +115,7 @@ const handleVCardDownloaded = () => {
     <VCardGenerator 
       :contact="contactInfo"
       :showQR="showQrCode"
+      :showNFC="true"
       @vcard-generated="handleVCardGenerated"
       @vcard-downloaded="handleVCardDownloaded"
       @nfc-scanning="handleNFCScanning"
@@ -356,10 +357,11 @@ export default defineConfig({
 
 ## Props
 
-| Prop    | Tipo    | Requerido | Descripción                           |
-| ------- | ------- | --------- | ------------------------------------- |
-| contact | Object  | Sí        | Información de contacto               |
-| showQR  | Boolean | No        | Mostrar código QR (por defecto: true) |
+| Prop    | Tipo    | Requerido | Descripción                                 |
+| ------- | ------- | --------- | ------------------------------------------- |
+| contact | Object  | Sí        | Información de contacto                     |
+| showQR  | Boolean | No        | Mostrar código QR (por defecto: true)       |
+| showNFC | Boolean | No        | Habilitar botón de NFC (por defecto: false) |
 
 ### Objeto contact
 
@@ -387,6 +389,66 @@ export default defineConfig({
 | nfc-success      | message                  | Éxito al escribir la etiqueta NFC        |
 | nfc-error        | errorMessage             | Error al escribir la etiqueta NFC        |
 | qr-error         | errorMessage             | Error al generar el código QR            |
+
+## Integración con Laravel
+
+Para usar este componente en un proyecto Laravel con Inertia.js + Vue, puedes seguir estos pasos:
+
+1. Instala el paquete:
+
+```bash
+npm install vue-vcard-generator
+```
+
+2. Importa el componente en tu vista de Inertia:
+
+```vue
+<script setup>
+import { VCardGenerator } from 'vue-vcard-generator';
+import { ref } from 'vue';
+import Layout from '@/Layouts/AppLayout.vue';
+
+defineProps({
+  // Props de Inertia
+});
+
+const contactInfo = ref({
+  name: 'Usuario Laravel',
+  firstName: 'Usuario',
+  lastName: 'Laravel',
+  organization: 'Laravel SA',
+  title: 'Desarrollador Full Stack',
+  phone: '+34612345678',
+  email: 'usuario@laravel.com',
+  website: 'https://laravel.com',
+  // Resto de campos
+});
+</script>
+
+<template>
+  <Layout>
+    <template #header>
+      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        Tarjeta de Contacto
+      </h2>
+    </template>
+
+    <div class="py-12">
+      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
+          <VCardGenerator 
+            :contact="contactInfo"
+            :showQR="true"
+            :showNFC="true"
+            @vcard-generated="data => console.log('vCard generada')"
+            @vcard-downloaded="() => console.log('vCard descargada')"
+          />
+        </div>
+      </div>
+    </div>
+  </Layout>
+</template>
+```
 
 ## Licencia
 
