@@ -5,7 +5,11 @@
     </div>
     <div class="vcard-actions">
       <button @click="downloadVCard" class="vcard-btn">Descargar vCard</button>
-      <button v-if="nfcSupported" @click="writeToNFC" class="vcard-btn">
+      <button
+        v-if="nfcSupported && showNFC"
+        @click="writeToNFC"
+        class="vcard-btn"
+      >
         Escribir a NFC
       </button>
     </div>
@@ -27,6 +31,10 @@ const props = defineProps({
   showQR: {
     type: Boolean,
     default: true,
+  },
+  showNFC: {
+    type: Boolean,
+    default: false,
   },
 });
 
