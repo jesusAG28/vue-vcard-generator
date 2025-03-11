@@ -171,8 +171,9 @@ const writeToNFC = async () => {
         await ndef.write({
           records: [
             {
-              recordType: "text",
-              data: vcardData.value,
+              recordType: "mime",
+              mediaType: "text/vcard",
+              data: new TextEncoder().encode(vcardData.value),
             },
           ],
         });

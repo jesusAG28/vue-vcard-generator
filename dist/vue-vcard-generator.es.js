@@ -1,9 +1,9 @@
-import { ref as l, watch as N, onMounted as R, createElementBlock as r, openBlock as d, createCommentVNode as f, createElementVNode as m } from "vue";
-import g from "qrcode";
-const E = { class: "vcard-generator" }, y = {
+import { ref as l, watch as N, onMounted as E, createElementBlock as r, openBlock as d, createCommentVNode as f, createElementVNode as u } from "vue";
+import R from "qrcode";
+const g = { class: "vcard-generator" }, y = {
   key: 0,
   class: "vcard-qr"
-}, $ = ["src"], k = { class: "vcard-actions" }, D = {
+}, $ = ["src"], T = { class: "vcard-actions" }, k = {
   __name: "VCardGenerator",
   props: {
     contact: {
@@ -35,7 +35,7 @@ const E = { class: "vcard-generator" }, y = {
     "qr-error"
   ],
   setup(a, { emit: v }) {
-    const t = a, n = v, o = l(""), s = l(null), i = l(!1), u = () => {
+    const t = a, n = v, o = l(""), s = l(null), i = l(!1), m = () => {
       let e = `BEGIN:VCARD
 VERSION:3.0
 `;
@@ -55,7 +55,7 @@ VERSION:3.0
       });
     }, w = async () => {
       try {
-        s.value = await g.toDataURL(o.value, {
+        s.value = await R.toDataURL(o.value, {
           errorCorrectionLevel: "H",
           margin: 1,
           width: 200
@@ -82,8 +82,9 @@ VERSION:3.0
             await e.write({
               records: [
                 {
-                  recordType: "text",
-                  data: o.value
+                  recordType: "mime",
+                  mediaType: "text/vcard",
+                  data: new TextEncoder().encode(o.value)
                 }
               ]
             }), n("nfc-success", "vCard escrita correctamente a la etiqueta NFC");
@@ -98,19 +99,19 @@ VERSION:3.0
     return N(
       () => t.contact,
       () => {
-        u();
+        m();
       },
       { deep: !0 }
-    ), R(() => {
-      u(), p();
-    }), (e, c) => (d(), r("div", E, [
+    ), E(() => {
+      m(), p();
+    }), (e, c) => (d(), r("div", g, [
       s.value ? (d(), r("div", y, [
-        m("img", {
+        u("img", {
           src: s.value,
           alt: "QR Code"
         }, null, 8, $)
       ])) : f("", !0),
-      m("div", k, [
+      u("div", T, [
         a.showDownload ? (d(), r("button", {
           key: 0,
           onClick: C,
@@ -124,12 +125,12 @@ VERSION:3.0
       ])
     ]));
   }
-}, T = {
+}, L = {
   install(a) {
-    a.component("VCardGenerator", D);
+    a.component("VCardGenerator", k);
   }
 };
 export {
-  D as VCardGenerator,
-  T as default
+  k as VCardGenerator,
+  L as default
 };

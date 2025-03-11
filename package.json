@@ -1,6 +1,6 @@
 {
   "name": "vue-vcard-generator",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Componente Vue para generar vCards con soporte para códigos QR y NFC",
   "main": "dist/vue-vcard-generator.umd.js",
   "module": "dist/vue-vcard-generator.es.js",
