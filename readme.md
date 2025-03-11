@@ -1,11 +1,12 @@
 # Vue vCard Generator
 
-Un componente Vue para generar vCards con soporte para códigos QR y NFC.
+Un componente Vue para generar vCards con soporte para códigos QR, NFC y fotos de perfil.
 
 ## Características
 
 - Genera vCards en formato estándar (RFC 6350)
 - Crea códigos QR automáticamente
+- Soporte para fotos de perfil
 - Soporte para escribir en etiquetas NFC
 - Compatible con Vue 3
 - Fácil de integrar y personalizar
@@ -101,62 +102,28 @@ const handleVCardDownloaded = () => {
 </script>
 ```
 
-### Ejemplo completo con todas las funcionalidades (QR y NFC)
+### Ejemplo con foto de perfil por URL
 
 ```vue
 <template>
-  <div class="contact-card-container">
-    <h1>Tarjeta de Contacto Digital</h1>
+  <div>
+    <h1>Mi Tarjeta de Contacto</h1>
     
-    <div class="status-messages">
-      <div v-if="nfcStatus" :class="['nfc-status', nfcStatusType]">{{ nfcStatus }}</div>
+    <div>
+      <h3>URL de la foto</h3>
+      <input 
+        type="url" 
+        v-model="photoUrl" 
+        placeholder="https://ejemplo.com/mi-foto.jpg"
+      />
     </div>
     
     <VCardGenerator 
       :contact="contactInfo"
-      :showQR="showQrCode"
-      :showNFC="true"
+      :photo="photoUrl"
+      photoType="url"
       @vcard-generated="handleVCardGenerated"
-      @vcard-downloaded="handleVCardDownloaded"
-      @nfc-scanning="handleNFCScanning"
-      @nfc-success="handleNFCSuccess"
-      @nfc-error="handleNFCError"
-      @qr-error="handleQRError"
     />
-    
-    <div class="options">
-      <button @click="showQrCode = !showQrCode">
-        {{ showQrCode ? 'Ocultar QR' : 'Mostrar QR' }}
-      </button>
-      
-      <div class="contact-form">
-        <h2>Editar Información</h2>
-        <label>
-          Nombre:
-          <input v-model="contactInfo.name" />
-        </label>
-        <label>
-          Organización:
-          <input v-model="contactInfo.organization" />
-        </label>
-        <label>
-          Cargo:
-          <input v-model="contactInfo.title" />
-        </label>
-        <label>
-          Teléfono:
-          <input v-model="contactInfo.phone" />
-        </label>
-        <label>
-          Email:
-          <input v-model="contactInfo.email" />
-        </label>
-        <label>
-          Web:
-          <input v-model="contactInfo.website" />
-        </label>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -164,157 +131,22 @@ const handleVCardDownloaded = () => {
 import { ref } from 'vue';
 import { VCardGenerator } from 'vue-vcard-generator';
 
-const showQrCode = ref(true);
-const nfcStatus = ref('');
-const nfcStatusType = ref('');
-
 const contactInfo = ref({
-  name: 'María García',
-  firstName: 'María',
-  lastName: 'García',
-  organization: 'Desarrollo Web SL',
-  title: 'Desarrolladora Laravel/Vue',
-  phone: '+34612345678',
-  email: 'maria.garcia@ejemplo.com',
-  website: 'https://mariaweb.dev',
-  address: 'Calle Innovación 42, Barcelona',
-  linkedin: 'https://linkedin.com/in/mariagarcia',
-  twitter: 'https://twitter.com/mariagarcia_dev'
+  name: 'Ana Martínez',
+  // ...resto de información de contacto
 });
+
+const photoUrl = ref('https://ejemplo.com/mi-foto.jpg');
 
 const handleVCardGenerated = (data) => {
   console.log('vCard generada correctamente');
-  
-  // Ejemplo de cómo podrías guardar la vCard en localStorage
-  localStorage.setItem('myVCard', data.vcardString);
-};
-
-const handleVCardDownloaded = () => {
-  nfcStatus.value = 'Tarjeta descargada correctamente';
-  nfcStatusType.value = 'success';
-  
-  // Limpiar el mensaje después de 3 segundos
-  setTimeout(() => {
-    nfcStatus.value = '';
-  }, 3000);
-};
-
-const handleNFCScanning = () => {
-  nfcStatus.value = 'Acerca una etiqueta NFC al dispositivo...';
-  nfcStatusType.value = 'info';
-};
-
-const handleNFCSuccess = (message) => {
-  nfcStatus.value = message;
-  nfcStatusType.value = 'success';
-  
-  // Limpiar el mensaje después de 5 segundos
-  setTimeout(() => {
-    nfcStatus.value = '';
-  }, 5000);
-};
-
-const handleNFCError = (error) => {
-  nfcStatus.value = `Error NFC: ${error}`;
-  nfcStatusType.value = 'error';
-  
-  // Si el error es que el dispositivo no soporta NFC
-  if (error === 'NFC no es compatible con este dispositivo') {
-    // Puedes mostrar información adicional al usuario
-    console.warn('Este navegador o dispositivo no tiene soporte para NFC. La funcionalidad NFC requiere Chrome para Android 89+ y HTTPS.');
-  }
-  
-  // Limpiar el mensaje después de 5 segundos
-  setTimeout(() => {
-    nfcStatus.value = '';
-  }, 5000);
-};
-
-const handleQRError = (error) => {
-  nfcStatus.value = `Error al generar QR: ${error}`;
-  nfcStatusType.value = 'error';
-  
-  // Limpiar el mensaje después de 5 segundos
-  setTimeout(() => {
-    nfcStatus.value = '';
-  }, 5000);
 };
 </script>
-
-<style>
-.contact-card-container {
-  font-family: Arial, sans-serif;
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-.status-messages {
-  min-height: 40px;
-  margin-bottom: 20px;
-}
-
-.nfc-status {
-  padding: 10px;
-  border-radius: 4px;
-  margin-bottom: 10px;
-}
-
-.nfc-status.success {
-  background-color: #e6ffe6;
-  border: 1px solid #00cc00;
-  color: #006600;
-}
-
-.nfc-status.error {
-  background-color: #ffe6e6;
-  border: 1px solid #cc0000;
-  color: #990000;
-}
-
-.nfc-status.info {
-  background-color: #e6f2ff;
-  border: 1px solid #0066cc;
-  color: #004080;
-}
-
-.options {
-  margin-top: 30px;
-}
-
-.contact-form {
-  margin-top: 20px;
-  border: 1px solid #ddd;
-  padding: 20px;
-  border-radius: 4px;
-}
-
-.contact-form label {
-  display: block;
-  margin-bottom: 10px;
-}
-
-.contact-form input {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-button {
-  background-color: #4285f4;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-button:hover {
-  background-color: #3367d6;
-}
-</style>
 ```
+
+### Ejemplo completo con todas las funcionalidades (QR, NFC y foto)
+
+Consulta el archivo de ejemplo en el repositorio para ver una implementación completa con todas las funcionalidades.
 
 ## Notas importantes sobre la funcionalidad NFC
 
@@ -360,8 +192,9 @@ export default defineConfig({
 | Prop    | Tipo    | Requerido | Descripción                                 |
 | ------- | ------- | --------- | ------------------------------------------- |
 | contact | Object  | Sí        | Información de contacto                     |
+| photo   | String  | No        | URL de la foto de perfil                    |
 | showQR  | Boolean | No        | Mostrar código QR (por defecto: true)       |
-| showNFC | Boolean | No        | Habilitar botón de NFC (por defecto: false) |
+| showNFC | Boolean | No        | Mostrar botón para NFC (por defecto: false) |
 
 ### Objeto contact
 
@@ -389,66 +222,7 @@ export default defineConfig({
 | nfc-success      | message                  | Éxito al escribir la etiqueta NFC        |
 | nfc-error        | errorMessage             | Error al escribir la etiqueta NFC        |
 | qr-error         | errorMessage             | Error al generar el código QR            |
-
-## Integración con Laravel
-
-Para usar este componente en un proyecto Laravel con Inertia.js + Vue, puedes seguir estos pasos:
-
-1. Instala el paquete:
-
-```bash
-npm install vue-vcard-generator
-```
-
-2. Importa el componente en tu vista de Inertia:
-
-```vue
-<script setup>
-import { VCardGenerator } from 'vue-vcard-generator';
-import { ref } from 'vue';
-import Layout from '@/Layouts/AppLayout.vue';
-
-defineProps({
-  // Props de Inertia
-});
-
-const contactInfo = ref({
-  name: 'Usuario Laravel',
-  firstName: 'Usuario',
-  lastName: 'Laravel',
-  organization: 'Laravel SA',
-  title: 'Desarrollador Full Stack',
-  phone: '+34612345678',
-  email: 'usuario@laravel.com',
-  website: 'https://laravel.com',
-  // Resto de campos
-});
-</script>
-
-<template>
-  <Layout>
-    <template #header>
-      <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-        Tarjeta de Contacto
-      </h2>
-    </template>
-
-    <div class="py-12">
-      <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-6">
-          <VCardGenerator 
-            :contact="contactInfo"
-            :showQR="true"
-            :showNFC="true"
-            @vcard-generated="data => console.log('vCard generada')"
-            @vcard-downloaded="() => console.log('vCard descargada')"
-          />
-        </div>
-      </div>
-    </div>
-  </Layout>
-</template>
-```
+| photo-error      | errorMessage             | Error al procesar la foto                |
 
 ## Licencia
 
