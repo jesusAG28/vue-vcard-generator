@@ -1,12 +1,11 @@
 # Vue vCard Generator
 
-Un componente Vue para generar vCards con soporte para códigos QR, NFC y fotos de perfil.
+Un componente Vue para generar vCards con soporte para códigos QR y NFC.
 
 ## Características
 
 - Genera vCards en formato estándar (RFC 6350)
 - Crea códigos QR automáticamente
-- Soporte para fotos de perfil
 - Soporte para escribir en etiquetas NFC
 - Compatible con Vue 3
 - Fácil de integrar y personalizar
@@ -102,27 +101,22 @@ const handleVCardDownloaded = () => {
 </script>
 ```
 
-### Ejemplo con foto de perfil por URL
+### Ejemplo completo con QR y NFC
 
 ```vue
 <template>
   <div>
     <h1>Mi Tarjeta de Contacto</h1>
     
-    <div>
-      <h3>URL de la foto</h3>
-      <input 
-        type="url" 
-        v-model="photoUrl" 
-        placeholder="https://ejemplo.com/mi-foto.jpg"
-      />
-    </div>
-    
     <VCardGenerator 
       :contact="contactInfo"
-      :photo="photoUrl"
-      photoType="url"
+      :showQR="true"
+      :showNFC="true"
+      :showDownload="true"
       @vcard-generated="handleVCardGenerated"
+      @nfc-scanning="handleNFCScanning"
+      @nfc-success="handleNFCSuccess"
+      @nfc-error="handleNFCError"
     />
   </div>
 </template>
@@ -133,20 +127,35 @@ import { VCardGenerator } from 'vue-vcard-generator';
 
 const contactInfo = ref({
   name: 'Ana Martínez',
-  // ...resto de información de contacto
+  firstName: 'Ana',
+  lastName: 'Martínez',
+  organization: 'Tech Solutions',
+  title: 'UX Designer',
+  phone: '+34987654321',
+  email: 'ana.martinez@ejemplo.com',
+  website: 'https://anamartinez.com',
+  address: 'Avenida Principal 45, Barcelona, España',
+  linkedin: 'https://linkedin.com/in/anamartinez',
+  twitter: 'https://twitter.com/anamartinez'
 });
-
-const photoUrl = ref('https://ejemplo.com/mi-foto.jpg');
 
 const handleVCardGenerated = (data) => {
   console.log('vCard generada correctamente');
 };
+
+const handleNFCScanning = () => {
+  console.log('Escaneando etiqueta NFC...');
+};
+
+const handleNFCSuccess = (message) => {
+  console.log('Éxito:', message);
+};
+
+const handleNFCError = (error) => {
+  console.error('Error NFC:', error);
+};
 </script>
 ```
-
-### Ejemplo completo con todas las funcionalidades (QR, NFC y foto)
-
-Consulta el archivo de ejemplo en el repositorio para ver una implementación completa con todas las funcionalidades.
 
 ## Notas importantes sobre la funcionalidad NFC
 
@@ -181,18 +190,11 @@ export default defineConfig({
 });
 ```
 
-### Solución de problemas comunes con NFC
-
-- **El botón NFC no aparece**: El dispositivo o navegador no son compatibles con la API Web NFC.
-- **Error al escanear**: Asegúrate de que la etiqueta NFC sea compatible y esté cerca del lector NFC del dispositivo.
-- **Error de permiso**: El usuario debe permitir el acceso a NFC cuando el navegador lo solicite.
-
 ## Props
 
 | Prop         | Tipo    | Requerido | Descripción                                 |
 | ------------ | ------- | --------- | ------------------------------------------- |
 | contact      | Object  | Sí        | Información de contacto                     |
-| photo        | String  | No        | URL de la foto de perfil                    |
 | showQR       | Boolean | No        | Mostrar código QR (por defecto: true)       |
 | showNFC      | Boolean | No        | Mostrar botón para NFC (por defecto: false) |
 | showDownload | Boolean | No        | Mostrar botón para Descargar vCard          |
@@ -223,7 +225,6 @@ export default defineConfig({
 | nfc-success      | message                  | Éxito al escribir la etiqueta NFC        |
 | nfc-error        | errorMessage             | Error al escribir la etiqueta NFC        |
 | qr-error         | errorMessage             | Error al generar el código QR            |
-| photo-error      | errorMessage             | Error al procesar la foto                |
 
 ## Licencia
 

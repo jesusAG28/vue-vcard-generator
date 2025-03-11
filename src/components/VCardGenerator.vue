@@ -1,8 +1,5 @@
 <template>
   <div class="vcard-generator">
-    <div v-if="photoPreview" class="vcard-photo">
-      <img :src="photoPreview" alt="Foto de perfil" />
-    </div>
     <div v-if="qrCode" class="vcard-qr">
       <img :src="qrCode" alt="QR Code" />
     </div>
@@ -33,10 +30,6 @@ const props = defineProps({
       return value.name && (value.email || value.phone);
     },
   },
-  photo: {
-    type: String,
-    default: null,
-  },
   showQR: {
     type: Boolean,
     default: true,
@@ -58,49 +51,11 @@ const emit = defineEmits([
   "nfc-success",
   "nfc-error",
   "qr-error",
-  "photo-error",
 ]);
 
 const vcardData = ref("");
 const qrCode = ref(null);
 const nfcSupported = ref(false);
-const photoPreview = ref(null);
-const photoBase64 = ref(null);
-
-// Procesar foto
-const processPhoto = async () => {
-  if (!props.photo) {
-    photoPreview.value = null;
-    photoBase64.value = null;
-    return;
-  }
-
-  try {
-    // La URL la usamos directamente para la previsualización
-    photoPreview.value = props.photo;
-
-    // Convertir la imagen de URL a base64 para incluirla en la vCard
-    const response = await fetch(props.photo);
-    const blob = await response.blob();
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      photoBase64.value = reader.result.split(",")[1]; // Eliminar el prefijo "data:image/jpeg;base64,"
-      generateVCard(); // Regenerar la vCard con la foto
-    };
-
-    reader.onerror = (error) => {
-      emit("photo-error", "Error al procesar la imagen de URL: " + error);
-      photoBase64.value = null;
-    };
-
-    reader.readAsDataURL(blob);
-  } catch (error) {
-    emit("photo-error", "Error al procesar la imagen: " + error.message);
-    photoPreview.value = null;
-    photoBase64.value = null;
-  }
-};
 
 // Generar vCard
 const generateVCard = () => {
@@ -146,19 +101,6 @@ const generateVCard = () => {
 
   if (props.contact.twitter) {
     vcard += `URL;TYPE=TWITTER:${props.contact.twitter}\n`;
-  }
-
-  // Añadir foto si existe
-  if (photoBase64.value) {
-    // Detectar el tipo de imagen a partir de los primeros bytes
-    let imageType = "JPEG"; // Por defecto
-    if (photoPreview.value.includes("data:image/png")) {
-      imageType = "PNG";
-    } else if (photoPreview.value.includes("data:image/gif")) {
-      imageType = "GIF";
-    }
-
-    vcard += `PHOTO;ENCODING=b;TYPE=${imageType}:${photoBase64.value}\n`;
   }
 
   vcard += "END:VCARD";
@@ -254,17 +196,8 @@ watch(
   { deep: true }
 );
 
-// Watch para cambios en la foto
-watch(
-  () => props.photo,
-  () => {
-    processPhoto();
-  }
-);
-
 // Inicializar al montar
 onMounted(() => {
-  processPhoto();
   generateVCard();
   checkNFCSupport();
 });
@@ -278,22 +211,6 @@ onMounted(() => {
   width: 100%;
   max-width: 300px;
   margin: 0 auto;
-}
-
-.vcard-photo {
-  margin-bottom: 1rem;
-  border: 1px solid #ddd;
-  padding: 0.5rem;
-  border-radius: 4px;
-  max-width: 200px;
-  overflow: hidden;
-}
-
-.vcard-photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: 2px;
 }
 
 .vcard-qr {
