@@ -189,12 +189,13 @@ export default defineConfig({
 
 ## Props
 
-| Prop    | Tipo    | Requerido | Descripción                                 |
-| ------- | ------- | --------- | ------------------------------------------- |
-| contact | Object  | Sí        | Información de contacto                     |
-| photo   | String  | No        | URL de la foto de perfil                    |
-| showQR  | Boolean | No        | Mostrar código QR (por defecto: true)       |
-| showNFC | Boolean | No        | Mostrar botón para NFC (por defecto: false) |
+| Prop         | Tipo    | Requerido | Descripción                                 |
+| ------------ | ------- | --------- | ------------------------------------------- |
+| contact      | Object  | Sí        | Información de contacto                     |
+| photo        | String  | No        | URL de la foto de perfil                    |
+| showQR       | Boolean | No        | Mostrar código QR (por defecto: true)       |
+| showNFC      | Boolean | No        | Mostrar botón para NFC (por defecto: false) |
+| showDownload | Boolean | No        | Mostrar botón para Descargar vCard          |
 
 ### Objeto contact
 

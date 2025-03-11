@@ -7,7 +7,9 @@
       <img :src="qrCode" alt="QR Code" />
     </div>
     <div class="vcard-actions">
-      <button @click="downloadVCard" class="vcard-btn">Descargar vCard</button>
+      <button v-if="showDownload" @click="downloadVCard" class="vcard-btn">
+        Descargar vCard
+      </button>
       <button
         v-if="nfcSupported && showNFC"
         @click="writeToNFC"
@@ -40,6 +42,10 @@ const props = defineProps({
     default: true,
   },
   showNFC: {
+    type: Boolean,
+    default: false,
+  },
+  showDownload: {
     type: Boolean,
     default: false,
   },

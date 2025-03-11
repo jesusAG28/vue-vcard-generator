@@ -1,12 +1,12 @@
-import { ref as s, watch as C, onMounted as b, createElementBlock as i, openBlock as u, createCommentVNode as h, createElementVNode as p } from "vue";
-import $ from "qrcode";
-const T = { class: "vcard-generator" }, F = {
+import { ref as s, watch as C, onMounted as $, createElementBlock as l, openBlock as d, createCommentVNode as f, createElementVNode as h } from "vue";
+import _ from "qrcode";
+const D = { class: "vcard-generator" }, T = {
   key: 0,
   class: "vcard-photo"
-}, L = ["src"], k = {
+}, k = ["src"], F = {
   key: 1,
   class: "vcard-qr"
-}, D = ["src"], I = { class: "vcard-actions" }, U = {
+}, L = ["src"], I = { class: "vcard-actions" }, U = {
   __name: "VCardGenerator",
   props: {
     contact: {
@@ -27,6 +27,10 @@ const T = { class: "vcard-generator" }, F = {
     showNFC: {
       type: Boolean,
       default: !1
+    },
+    showDownload: {
+      type: Boolean,
+      default: !1
     }
   },
   emits: [
@@ -39,19 +43,19 @@ const T = { class: "vcard-generator" }, F = {
     "photo-error"
   ],
   setup(n, { emit: g }) {
-    const t = n, o = g, l = s(""), v = s(null), f = s(!1), r = s(null), c = s(null), w = async () => {
+    const t = n, o = g, i = s(""), p = s(null), v = s(!1), r = s(null), c = s(null), w = async () => {
       if (!t.photo) {
         r.value = null, c.value = null;
         return;
       }
       try {
         r.value = t.photo;
-        const a = await (await fetch(t.photo)).blob(), d = new FileReader();
-        d.onload = () => {
-          c.value = d.result.split(",")[1], m();
-        }, d.onerror = (_) => {
-          o("photo-error", "Error al procesar la imagen de URL: " + _), c.value = null;
-        }, d.readAsDataURL(a);
+        const a = await (await fetch(t.photo)).blob(), u = new FileReader();
+        u.onload = () => {
+          c.value = u.result.split(",")[1], m();
+        }, u.onerror = (b) => {
+          o("photo-error", "Error al procesar la imagen de URL: " + b), c.value = null;
+        }, u.readAsDataURL(a);
       } catch (e) {
         o("photo-error", "Error al procesar la imagen: " + e.message), r.value = null, c.value = null;
       }
@@ -74,13 +78,13 @@ VERSION:3.0
         r.value.includes("data:image/png") ? a = "PNG" : r.value.includes("data:image/gif") && (a = "GIF"), e += `PHOTO;ENCODING=b;TYPE=${a}:${c.value}
 `;
       }
-      e += "END:VCARD", l.value = e, t.showQR && N(), o("vcard-generated", {
+      e += "END:VCARD", i.value = e, t.showQR && N(), o("vcard-generated", {
         vcardString: e,
         dataUrl: `data:text/vcard;charset=utf-8,${encodeURIComponent(e)}`
       });
     }, N = async () => {
       try {
-        v.value = await $.toDataURL(l.value, {
+        p.value = await _.toDataURL(i.value, {
           errorCorrectionLevel: "H",
           margin: 1,
           width: 200
@@ -90,13 +94,13 @@ VERSION:3.0
       }
     }, E = () => {
       const e = `data:text/vcard;charset=utf-8,${encodeURIComponent(
-        l.value
+        i.value
       )}`, a = document.createElement("a");
       a.href = e, a.download = `${t.contact.name.replace(/\s+/g, "_")}.vcf`, document.body.appendChild(a), a.click(), document.body.removeChild(a), o("vcard-downloaded");
     }, R = () => {
-      f.value = typeof window < "u" && "NDEFReader" in window;
+      v.value = typeof window < "u" && "NDEFReader" in window;
     }, y = async () => {
-      if (!f.value) {
+      if (!v.value) {
         o("nfc-error", "NFC no es compatible con este dispositivo");
         return;
       }
@@ -108,7 +112,7 @@ VERSION:3.0
               records: [
                 {
                   recordType: "text",
-                  data: l.value
+                  data: i.value
                 }
               ]
             }), o("nfc-success", "vCard escrita correctamente a la etiqueta NFC");
@@ -131,31 +135,32 @@ VERSION:3.0
       () => {
         w();
       }
-    ), b(() => {
+    ), $(() => {
       w(), m(), R();
-    }), (e, a) => (u(), i("div", T, [
-      r.value ? (u(), i("div", F, [
-        p("img", {
+    }), (e, a) => (d(), l("div", D, [
+      r.value ? (d(), l("div", T, [
+        h("img", {
           src: r.value,
           alt: "Foto de perfil"
-        }, null, 8, L)
-      ])) : h("", !0),
-      v.value ? (u(), i("div", k, [
-        p("img", {
-          src: v.value,
+        }, null, 8, k)
+      ])) : f("", !0),
+      p.value ? (d(), l("div", F, [
+        h("img", {
+          src: p.value,
           alt: "QR Code"
-        }, null, 8, D)
-      ])) : h("", !0),
-      p("div", I, [
-        p("button", {
+        }, null, 8, L)
+      ])) : f("", !0),
+      h("div", I, [
+        n.showDownload ? (d(), l("button", {
+          key: 0,
           onClick: E,
           class: "vcard-btn"
-        }, "Descargar vCard"),
-        f.value && n.showNFC ? (u(), i("button", {
-          key: 0,
+        }, " Descargar vCard ")) : f("", !0),
+        v.value && n.showNFC ? (d(), l("button", {
+          key: 1,
           onClick: y,
           class: "vcard-btn"
-        }, " Escribir a NFC ")) : h("", !0)
+        }, " Escribir a NFC ")) : f("", !0)
       ])
     ]));
   }
